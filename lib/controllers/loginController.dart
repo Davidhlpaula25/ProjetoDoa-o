@@ -1,7 +1,9 @@
-import 'package:authentication/home/home.view.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+
+import '../home/home.view.dart'; // Importe o HomeScreen
 
 // Classe que representa um usuário local com email e senha.
 class LocalUser {
@@ -20,28 +22,40 @@ class LoginController extends GetxController {
   /// Lista reativa de usuários locais.
   final RxList<LocalUser> userList = RxList<LocalUser>();
   /// Indicador reativo de carregamento.
-  final RxBool loading = false.obs; 
-  
+  final RxBool loading = false.obs;
+
   /// Instância do GoogleSignIn para login com Google.
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     clientId: '753775895492-rtu6ac7sgqidsuv65fo5cqulfhbh3i48.apps.googleusercontent.com',
   );
 
-  String ?userName = "";
-  String ?userEmail = "";
-  String ?imageUrl = "";
+  String? userName = "";
+  String? userEmail = "";
+  String? imageUrl = "";
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   void onInit() {
     super.onInit();
-    userList.add(LocalUser('fulano@gmail.com', 'fulano123'));
-    userList.add(LocalUser('siclano@gmail.com', 'siclano123'));
-    userList.add(LocalUser('david@gmail.com', 'david123'));
-    userList.add(LocalUser('admin@gmail.com', 'admin123'));
+    _fetchUsersFromFirestore();
+  }
+
+  /// Busca usuários cadastrados no Firestore e adiciona à lista local.
+  void _fetchUsersFromFirestore() async {
+    try {
+      QuerySnapshot snapshot = await _firestore.collection('cadastro').get();
+      for (var doc in snapshot.docs) {
+        userList.add(LocalUser(doc['email'], doc['password']));
+      }
+    } catch (e) {
+      print("Erro ao buscar usuários do Firestore: $e");
+    }
   }
 
   /// Tenta realizar o login usando a lista local de usuários.
-  void tryToLogin(BuildContext context) {
+  void tryToLogin(BuildContext context) async {
+    _fetchUsersFromFirestore(); // Certifique-se de que os usuários mais recentes são buscados
     for (var user in userList) {
       if (emailInput.text == user.email && passwordInput.text == user.password) {
         Navigator.pushReplacement(
@@ -52,25 +66,23 @@ class LoginController extends GetxController {
         return;
       }
     }
-    _showError();
+    _showError(context);
   }
 
   /// Tenta realizar o login usando o Google.
   Future<void> tryToLoginWithGoogle(BuildContext context) async {
-    loading.value = true;  
+    loading.value = true;
     final result = await _googleLogin();
     loading.value = false;
 
     if (result) {
       Navigator.pushReplacement(
-       
         context,
         MaterialPageRoute(builder: (context) => const HomeScreen()),
       );
-      
       _showSuccessMessage(context, "Logado com sucesso!");
     } else {
-      _showError();
+      _showError(context);
     }
   }
 
@@ -91,8 +103,14 @@ class LoginController extends GetxController {
     }
   }
 
-  void _showError() {
-     print('ERRO AO ENTRAR: Email ou senha incorretos');
+  /// Exibe mensagem de erro
+  void _showError(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('ERRO AO ENTRAR: Email ou senha incorretos'),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
 
   /// Exibe uma mensagem de sucesso.

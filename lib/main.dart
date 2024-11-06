@@ -1,17 +1,21 @@
-import 'package:authentication/login/login.view.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-import 'firebase_options.dart'; 
-//função principal que inicializa o aplicativo
+import 'cadastro_screen.dart'; // Importe a nova tela de cadastro
+import 'firebase_options.dart';
+import 'home/home.view.dart'; // Importe a tela principal
+import 'login/login.view.dart'; // Importe a tela de login
+
+// Função principal que inicializa o aplicativo
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();     //garantir que os bindings do flutter sejam innicciados antes de tudo
+  WidgetsFlutterBinding.ensureInitialized(); // Garantir que os bindings do Flutter sejam iniciados antes de tudo
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,    //inicializar o firebase com opçoes especificas
+    options: DefaultFirebaseOptions.currentPlatform, // Inicializar o Firebase com opções específicas
   );
-  runApp(MyApp());     //executor do app
+  runApp(MyApp()); // Executor do app
 }
-//classe principal do app
+
+// Classe principal do app
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -19,11 +23,18 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Bem vindo Legião do Bem',
       theme: ThemeData.dark(),
-      home: Main(),
+      initialRoute: '/', // Ajustado para a tela inicial
+      routes: {
+        '/': (context) => Main(), // Tela inicial
+        '/login': (context) => LoginScreen(),
+        '/home': (context) => HomeScreen(),
+        '/cadastro': (context) => CadastroScreen(), // Adiciona a rota para a tela de cadastro
+      },
     );
   }
 }
-//tela principal
+
+// Tela principal
 class Main extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -33,14 +44,41 @@ class Main extends StatelessWidget {
         title: const Text('Bem vindo Legião do Bem'),
       ),
       body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => LoginScreen()),
-            );
-          },
-          child: const Text('Sua doação pode mudar vidas. Clique aqui para contribuir. '),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Sua doação pode mudar vidas.',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/login');
+              },
+              child: const Text('Clique aqui para contribuir.'),
+            ),
+            const SizedBox(height: 40),
+            const Text(
+              'Novo aqui?',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 10),
+            OutlinedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/cadastro');
+              },
+              child: const Text('Cadastre-se ou faça login'),
+            ),
+          ],
         ),
       ),
     );
