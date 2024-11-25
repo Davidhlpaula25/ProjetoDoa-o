@@ -40,10 +40,10 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
     _opacityAnimation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
     );
-    _slideAnimation = Tween<Offset>(begin: Offset(0, 0.5), end: Offset(0, 0)).animate(
+    _slideAnimation = Tween<Offset>(begin: const Offset(0, 0.5), end: const Offset(0, 0)).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
-    _buttonSlideAnimation = Tween<Offset>(begin: Offset(0, 0.5), end: Offset(0, 0)).animate(
+    _buttonSlideAnimation = Tween<Offset>(begin: const Offset(0, 0.5), end: const Offset(0, 0)).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
 
@@ -75,7 +75,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
               children: [
                 AnimatedOpacity(
                   opacity: _opacityAnimation.value,
-                  duration: Duration(seconds: 1),
+                  duration: const Duration(seconds: 1),
                   child: Text(
                     'Login',
                     style: Theme.of(context).textTheme.displayLarge?.copyWith(
@@ -88,7 +88,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                 const SizedBox(height: 24),
                 AnimatedSlide(
                   offset: _slideAnimation.value,
-                  duration: Duration(seconds: 1),
+                  duration: const Duration(seconds: 1),
                   child: TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
@@ -115,7 +115,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                 const SizedBox(height: 16),
                 AnimatedSlide(
                   offset: _slideAnimation.value,
-                  duration: Duration(seconds: 1),
+                  duration: const Duration(seconds: 1),
                   child: TextFormField(
                     controller: _passwordController,
                     obscureText: true,
@@ -140,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                 const SizedBox(height: 24),
                 AnimatedSlide(
                   offset: _buttonSlideAnimation.value,
-                  duration: Duration(seconds: 1),
+                  duration: const Duration(seconds: 1),
                   child: ElevatedButton(
                     onPressed: _login,
                     style: ElevatedButton.styleFrom(

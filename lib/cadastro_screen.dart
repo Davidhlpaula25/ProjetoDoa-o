@@ -23,14 +23,10 @@ class _CadastroScreenState extends State<CadastroScreen> with TickerProviderStat
   final _formKey = GlobalKey<FormState>();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  bool _showList = false;
-  bool _isFormVisible = false; // Controle de visibilidade do formulário
-
-  late AnimationController _animationController;
-  late Animation<double> _opacityAnimation;
-  late Animation<Offset> _slideAnimation;
+  bool _isListVisible = false; // Controle de visibilidade da lista.
 
   Future<void> _buscarEnderecoPorCEP(String cep) async {
+    if (cep.isEmpty) return;
     try {
       final response = await http.get(Uri.parse('https://viacep.com.br/ws/$cep/json/'));
       if (response.statusCode == 200) {
@@ -42,63 +38,35 @@ class _CadastroScreenState extends State<CadastroScreen> with TickerProviderStat
             _cidadeController.text = data['localidade'] ?? '';
           });
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('CEP inválido ou não encontrado.')),
-          );
+          _mostrarMensagem('CEP inválido ou não encontrado.');
         }
       } else {
         throw Exception('Erro ao buscar CEP');
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao buscar CEP: $e')),
-      );
+      _mostrarMensagem('Erro ao buscar CEP: $e');
     }
   }
 
   Future<void> _registerUser() async {
     if (_formKey.currentState!.validate()) {
-      final String name = _nameController.text;
-      final String email = _emailController.text;
-      final String password = _passwordController.text;
-      final String cep = _cepController.text;
-      final String rua = _ruaController.text;
-      final String bairro = _bairroController.text;
-      final String cidade = _cidadeController.text;
+      final Map<String, dynamic> userData = {
+        'name': _nameController.text,
+        'email': _emailController.text,
+        'password': _passwordController.text,
+        'cep': _cepController.text,
+        'rua': _ruaController.text,
+        'bairro': _bairroController.text,
+        'cidade': _cidadeController.text,
+        'createdAt': FieldValue.serverTimestamp(),
+      };
 
-      if (name.isNotEmpty && email.isNotEmpty && password.isNotEmpty && rua.isNotEmpty) {
-        try {
-          await _firestore.collection('cadastro').add({
-            'name': name,
-            'email': email,
-            'password': password,
-            'cep': cep,
-            'rua': rua,
-            'bairro': bairro,
-            'cidade': cidade,
-            'createdAt': FieldValue.serverTimestamp(),
-          });
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Cadastro realizado com sucesso!')),
-          );
-
-          _nameController.clear();
-          _emailController.clear();
-          _passwordController.clear();
-          _cepController.clear();
-          _ruaController.clear();
-          _bairroController.clear();
-          _cidadeController.clear();
-        } catch (e) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao cadastrar usuário: $e')),
-          );
-        }
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Por favor, preencha todos os campos')),
-        );
+      try {
+        await _firestore.collection('cadastro').add(userData);
+        _mostrarMensagem('Cadastro realizado com sucesso!');
+        _limparCampos();
+      } catch (e) {
+        _mostrarMensagem('Erro ao cadastrar usuário: $e');
       }
     }
   }
@@ -106,46 +74,28 @@ class _CadastroScreenState extends State<CadastroScreen> with TickerProviderStat
   Future<void> _deleteUser(String docId) async {
     try {
       await _firestore.collection('cadastro').doc(docId).delete();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Cadastro deletado com sucesso!')),
-      );
+      _mostrarMensagem('Cadastro deletado com sucesso!');
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao deletar usuário: $e')),
-      );
+      _mostrarMensagem('Erro ao deletar usuário: $e');
     }
+  }
+
+  void _mostrarMensagem(String mensagem) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(mensagem)));
+  }
+
+  void _limparCampos() {
+    _nameController.clear();
+    _emailController.clear();
+    _passwordController.clear();
+    _cepController.clear();
+    _ruaController.clear();
+    _bairroController.clear();
+    _cidadeController.clear();
   }
 
   Stream<QuerySnapshot> _listarCadastros() {
     return _firestore.collection('cadastro').orderBy('createdAt').snapshots();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(seconds: 1),
-      vsync: this,
-    );
-    _opacityAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
-    );
-    _slideAnimation = Tween<Offset>(begin: Offset(0, 0.5), end: Offset(0, 0)).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
-    );
-
-    _animationController.forward();
-    Future.delayed(Duration(seconds: 1), () {
-      setState(() {
-        _isFormVisible = true;
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
   }
 
   @override
@@ -162,133 +112,41 @@ class _CadastroScreenState extends State<CadastroScreen> with TickerProviderStat
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              AnimatedOpacity(
-                opacity: _opacityAnimation.value,
-                duration: Duration(seconds: 1),
-                child: Text(
-                  'Crie sua conta',
-                  style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                        color: const Color(0xFF00FF7F),
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
-                      ),
-                  textAlign: TextAlign.center,
-                ),
+              Text(
+                'Crie sua conta',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      color: const Color(0xFF00FF7F),
+                      fontWeight: FontWeight.bold,
+                    ),
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
-              AnimatedContainer(
-                duration: const Duration(seconds: 1),
-                height: _isFormVisible ? null : 0,
-                curve: Curves.easeInOut,
+              Form(
+                key: _formKey,
                 child: Column(
                   children: [
-                    TextFormField(
-                      controller: _nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Nome',
-                        labelStyle: TextStyle(color: Colors.white),
-                        border: OutlineInputBorder(),
-                      ),
-                      style: const TextStyle(color: Colors.white),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor, insira seu nome';
-                        }
-                        return null;
-                      },
-                    ),
+                    _buildTextField('Nome', _nameController),
                     const SizedBox(height: 10),
-                    TextFormField(
-                      controller: _emailController,
-                      decoration: const InputDecoration(
-                        labelText: 'Email',
-                        labelStyle: TextStyle(color: Colors.white),
-                        border: OutlineInputBorder(),
-                      ),
-                      keyboardType: TextInputType.emailAddress,
-                      style: const TextStyle(color: Colors.white),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor, insira seu email';
-                        } else if (!value.contains('@')) {
-                          return 'Por favor, insira um email válido';
-                        }
-                        return null;
-                      },
-                    ),
+                    _buildTextField('Email', _emailController,
+                        keyboardType: TextInputType.emailAddress, validator: _validarEmail),
                     const SizedBox(height: 10),
-                    TextFormField(
-                      controller: _passwordController,
-                      decoration: const InputDecoration(
-                        labelText: 'Senha',
-                        labelStyle: TextStyle(color: Colors.white),
-                        border: OutlineInputBorder(),
-                      ),
-                      obscureText: true,
-                      style: const TextStyle(color: Colors.white),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor, insira sua senha';
-                        }
-                        return null;
-                      },
-                    ),
+                    _buildTextField('Senha', _passwordController, obscureText: true),
                     const SizedBox(height: 10),
-                    TextFormField(
-                      controller: _cepController,
-                      decoration: const InputDecoration(
-                        labelText: 'CEP',
-                        labelStyle: TextStyle(color: Colors.white),
-                        border: OutlineInputBorder(),
-                      ),
-                      keyboardType: TextInputType.number,
-                      style: const TextStyle(color: Colors.white),
-                      onFieldSubmitted: _buscarEnderecoPorCEP,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor, insira seu CEP';
-                        }
-                        return null;
-                      },
-                    ),
+                    _buildTextField('CEP', _cepController,
+                        keyboardType: TextInputType.number,
+                        onFieldSubmitted: (_) => _buscarEnderecoPorCEP(_cepController.text)),
                     const SizedBox(height: 10),
-                    TextFormField(
-                      controller: _ruaController,
-                      decoration: const InputDecoration(
-                        labelText: 'Rua',
-                        labelStyle: TextStyle(color: Colors.white),
-                        border: OutlineInputBorder(),
-                      ),
-                      style: const TextStyle(color: Colors.white),
-                      readOnly: true,
-                    ),
+                    _buildTextField('Rua', _ruaController, readOnly: true),
                     const SizedBox(height: 10),
-                    TextFormField(
-                      controller: _bairroController,
-                      decoration: const InputDecoration(
-                        labelText: 'Bairro',
-                        labelStyle: TextStyle(color: Colors.white),
-                        border: OutlineInputBorder(),
-                      ),
-                      style: const TextStyle(color: Colors.white),
-                      readOnly: true,
-                    ),
+                    _buildTextField('Bairro', _bairroController, readOnly: true),
                     const SizedBox(height: 10),
-                    TextFormField(
-                      controller: _cidadeController,
-                      decoration: const InputDecoration(
-                        labelText: 'Cidade',
-                        labelStyle: TextStyle(color: Colors.white),
-                        border: OutlineInputBorder(),
-                      ),
-                      style: const TextStyle(color: Colors.white),
-                      readOnly: true,
-                    ),
+                    _buildTextField('Cidade', _cidadeController, readOnly: true),
                     const SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: _registerUser,
                       style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.black, backgroundColor: const Color(0xFF00FF7F),
+                        foregroundColor: Colors.black,
+                        backgroundColor: const Color(0xFF00FF7F),
                         padding: const EdgeInsets.symmetric(vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -296,6 +154,67 @@ class _CadastroScreenState extends State<CadastroScreen> with TickerProviderStat
                       ),
                       child: const Text('Cadastrar', style: TextStyle(fontSize: 18)),
                     ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _isListVisible = !_isListVisible;
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.black,
+                        backgroundColor: Colors.amber,
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(_isListVisible ? 'Ocultar Cadastros' : 'Listar Cadastros'),
+                    ),
+                    if (_isListVisible)
+                      StreamBuilder<QuerySnapshot>(
+                        stream: _listarCadastros(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const Center(child: CircularProgressIndicator());
+                          }
+                          if (snapshot.hasError) {
+                            return Text(
+                              'Erro ao carregar cadastros: ${snapshot.error}',
+                              style: const TextStyle(color: Colors.red),
+                            );
+                          }
+                          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                            return const Text(
+                              'Nenhum cadastro encontrado.',
+                              style: TextStyle(color: Colors.white),
+                            );
+                          }
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: snapshot.data!.docs.length,
+                            itemBuilder: (context, index) {
+                              final doc = snapshot.data!.docs[index];
+                              final data = doc.data() as Map<String, dynamic>;
+                              return ListTile(
+                                title: Text(
+                                  data['name'] ?? 'Sem nome',
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                                subtitle: Text(
+                                  data['email'] ?? 'Sem email',
+                                  style: const TextStyle(color: Colors.white70),
+                                ),
+                                trailing: IconButton(
+                                  icon: const Icon(Icons.delete, color: Colors.red),
+                                  onPressed: () => _deleteUser(doc.id),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ),
                   ],
                 ),
               ),
@@ -304,5 +223,39 @@ class _CadastroScreenState extends State<CadastroScreen> with TickerProviderStat
         ),
       ),
     );
+  }
+
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller, {
+    TextInputType keyboardType = TextInputType.text,
+    bool obscureText = false,
+    bool readOnly = false,
+    String? Function(String?)? validator,
+    void Function(String)? onFieldSubmitted,
+  }) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: Colors.white),
+        border: const OutlineInputBorder(),
+      ),
+      keyboardType: keyboardType,
+      obscureText: obscureText,
+      readOnly: readOnly,
+      style: const TextStyle(color: Colors.white),
+      validator: validator,
+      onFieldSubmitted: onFieldSubmitted,
+    );
+  }
+
+  String? _validarEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Por favor, insira seu email';
+    } else if (!value.contains('@')) {
+      return 'Por favor, insira um email válido';
+    }
+    return null;
   }
 }

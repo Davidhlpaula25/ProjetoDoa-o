@@ -26,10 +26,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       curve: Curves.easeInOut,
     );
     
-    _buttonSlideAnimation1 = Tween<Offset>(begin: Offset(0, 0.5), end: Offset(0, 0)).animate(
+    _buttonSlideAnimation1 = Tween<Offset>(begin: const Offset(0, 0.5), end: const Offset(0, 0)).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
-    _buttonSlideAnimation2 = Tween<Offset>(begin: Offset(0, 0.5), end: Offset(0, 0)).animate(
+    _buttonSlideAnimation2 = Tween<Offset>(begin: const Offset(0, 0.5), end: const Offset(0, 0)).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
   }
