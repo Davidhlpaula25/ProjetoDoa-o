@@ -15,7 +15,7 @@ class GoogleLoginButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.blue, 
+        backgroundColor: const Color(0xFF00FF7F), // Verde claro
         padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
@@ -24,9 +24,9 @@ class GoogleLoginButton extends StatelessWidget {
       child: const Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.g_mobiledata),
+          Icon(Icons.g_mobiledata, color: Colors.black), // Ícone com cor preta
           SizedBox(width: 8), 
-          Text('Entrar com Google'),
+          Text('Entrar com Google', style: TextStyle(color: Colors.black)),
         ],
       ),
     );

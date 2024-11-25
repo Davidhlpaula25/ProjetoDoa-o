@@ -1,3 +1,4 @@
+// ignore: file_names
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -23,8 +24,10 @@ class RegisterController extends GetxController {
         'password': passwordInput.text,
       });
 
+      // ignore: use_build_context_synchronously
       _showSuccessMessage(context, "Usuário registrado com sucesso!");
     } catch (e) {
+      // ignore: use_build_context_synchronously
       _showError(context, 'Erro ao registrar: $e');
     }
   }

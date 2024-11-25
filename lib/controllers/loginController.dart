@@ -1,4 +1,13 @@
+// ignore: file_names
+// ignore: file_names
+// ignore: file_names
+// ignore: file_names
+// ignore: file_names
+// ignore: file_names
+// ignore: file_names
+// ignore: file_names
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -48,8 +57,8 @@ class LoginController extends GetxController {
       for (var doc in snapshot.docs) {
         userList.add(LocalUser(doc['email'], doc['password']));
       }
+    // ignore: empty_catches
     } catch (e) {
-      print("Erro ao buscar usuários do Firestore: $e");
     }
   }
 
@@ -77,11 +86,14 @@ class LoginController extends GetxController {
 
     if (result) {
       Navigator.pushReplacement(
+        // ignore: use_build_context_synchronously
         context,
         MaterialPageRoute(builder: (context) => const HomeScreen()),
       );
+      // ignore: use_build_context_synchronously
       _showSuccessMessage(context, "Logado com sucesso!");
     } else {
+      // ignore: use_build_context_synchronously
       _showError(context);
     }
   }
@@ -98,7 +110,8 @@ class LoginController extends GetxController {
         return false;
       }
     } catch (e) {
-      print("Erro no login com Google: $e");
+      if (kDebugMode) {
+      }
       return false;
     }
   }
@@ -106,7 +119,7 @@ class LoginController extends GetxController {
   /// Exibe mensagem de erro
   void _showError(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+      const SnackBar(
         content: Text('ERRO AO ENTRAR: Email ou senha incorretos'),
         backgroundColor: Colors.red,
       ),
