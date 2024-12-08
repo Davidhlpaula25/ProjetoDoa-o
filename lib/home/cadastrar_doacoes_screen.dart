@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 
 class CadastrarDoacoesScreen extends StatefulWidget {
   const CadastrarDoacoesScreen({super.key});
@@ -43,7 +44,6 @@ class _CadastrarDoacoesScreenState extends State<CadastrarDoacoesScreen> {
     'Leite': 0,
   };
 
-  // Variável para controlar a animação do botão
   bool _isButtonPressed = false;
 
   Future<void> _adicionarDoacao() async {
@@ -107,6 +107,7 @@ class _CadastrarDoacoesScreenState extends State<CadastrarDoacoesScreen> {
                 controller: _nomeController,
                 decoration: const InputDecoration(
                   labelText: 'Nome',
+                  labelStyle: TextStyle(color: Colors.white),
                   filled: true,
                   fillColor: Color(0xFF006400),
                 ),
@@ -117,17 +118,22 @@ class _CadastrarDoacoesScreenState extends State<CadastrarDoacoesScreen> {
                 controller: _dataNascimentoController,
                 decoration: const InputDecoration(
                   labelText: 'Data de Nascimento',
+                  labelStyle: TextStyle(color: Colors.white),
                   filled: true,
                   fillColor: Color(0xFF006400),
                 ),
                 style: const TextStyle(color: Colors.white),
                 keyboardType: TextInputType.datetime,
+                inputFormatters: [
+                  MaskedInputFormatter('##/##/####'), // Formato para data
+                ],
               ),
               const SizedBox(height: 10),
               TextField(
                 controller: _cpfController,
                 decoration: const InputDecoration(
                   labelText: 'CPF',
+                  labelStyle: TextStyle(color: Colors.white),
                   filled: true,
                   fillColor: Color(0xFF006400),
                 ),
@@ -139,6 +145,7 @@ class _CadastrarDoacoesScreenState extends State<CadastrarDoacoesScreen> {
                 controller: _telefoneController,
                 decoration: const InputDecoration(
                   labelText: 'Telefone',
+                  labelStyle: TextStyle(color: Colors.white),
                   filled: true,
                   fillColor: Color(0xFF006400),
                 ),
@@ -150,6 +157,7 @@ class _CadastrarDoacoesScreenState extends State<CadastrarDoacoesScreen> {
                 value: _sexoSelecionado,
                 decoration: const InputDecoration(
                   labelText: 'Sexo',
+                  labelStyle: TextStyle(color: Colors.white),
                   filled: true,
                   fillColor: Color(0xFF006400),
                 ),
@@ -158,7 +166,7 @@ class _CadastrarDoacoesScreenState extends State<CadastrarDoacoesScreen> {
                 items: ['Masculino', 'Feminino', 'Outros'].map((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
-                    child: Text(value),
+                    child: Text(value, style: const TextStyle(color: Colors.white)),
                   );
                 }).toList(),
                 onChanged: (newValue) {
@@ -172,6 +180,7 @@ class _CadastrarDoacoesScreenState extends State<CadastrarDoacoesScreen> {
                 value: _campanhaSelecionada,
                 decoration: const InputDecoration(
                   labelText: 'Campanha',
+                  labelStyle: TextStyle(color: Colors.white),
                   filled: true,
                   fillColor: Color(0xFF006400),
                 ),
@@ -180,7 +189,7 @@ class _CadastrarDoacoesScreenState extends State<CadastrarDoacoesScreen> {
                 items: ['Vista-se bem', 'Fome-zero'].map((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
-                    child: Text(value),
+                    child: Text(value, style: const TextStyle(color: Colors.white)),
                   );
                 }).toList(),
                 onChanged: (newValue) {

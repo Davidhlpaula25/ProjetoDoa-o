@@ -1,12 +1,17 @@
+buildscript {
+    ext.kotlin_version = '1.9.0' // Defina a versão do Kotlin aqui
+    repositories {
+        google()
+        mavenCentral()
+    }
 
-dependecies{
-    classpath 'com.android.tools.build:gradle:7.0.4'
-    classpath "org.jetbrains.kotlin:kotlin-grade-plugin:$kotlin_version"
-   classpath 'com.google.gms:google-services:4.3.10'
-   classpath 'com.google.firebase:firebase-core:17.2.0'
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.3.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.google.gms:google-services:4.3.10'
+        classpath 'com.google.firebase:firebase-core:17.2.0'
+    }
 }
-
-
 
 allprojects {
     repositories {
@@ -26,4 +31,6 @@ subprojects {
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
-apply plugin: 'com.google.gms.google-services'  //adiconar
+
+// Adicione o plugin google-services no final do arquivo build.gradle
+apply plugin: 'com.google.gms.google-services'

@@ -6,6 +6,7 @@ class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _LoginScreenState createState() => _LoginScreenState();
 }
 
@@ -101,7 +102,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    style: const TextStyle(color: Colors.black),
+                    style: const TextStyle(color: Color.fromARGB(255, 250, 249, 249)),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Por favor, insira seu email';
@@ -128,7 +129,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    style: const TextStyle(color: Colors.black),
+                    style: const TextStyle(color: Color.fromARGB(255, 250, 249, 249)),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Por favor, insira sua senha';

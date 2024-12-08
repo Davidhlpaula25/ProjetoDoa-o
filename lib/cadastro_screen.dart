@@ -8,6 +8,7 @@ class CadastroScreen extends StatefulWidget {
   const CadastroScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _CadastroScreenState createState() => _CadastroScreenState();
 }
 
@@ -15,6 +16,7 @@ class _CadastroScreenState extends State<CadastroScreen> with TickerProviderStat
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   final TextEditingController _cepController = TextEditingController();
   final TextEditingController _ruaController = TextEditingController();
   final TextEditingController _bairroController = TextEditingController();
@@ -88,6 +90,7 @@ class _CadastroScreenState extends State<CadastroScreen> with TickerProviderStat
     _nameController.clear();
     _emailController.clear();
     _passwordController.clear();
+    _confirmPasswordController.clear();
     _cepController.clear();
     _ruaController.clear();
     _bairroController.clear();
@@ -130,7 +133,20 @@ class _CadastroScreenState extends State<CadastroScreen> with TickerProviderStat
                     _buildTextField('Email', _emailController,
                         keyboardType: TextInputType.emailAddress, validator: _validarEmail),
                     const SizedBox(height: 10),
-                    _buildTextField('Senha', _passwordController, obscureText: true),
+                    _buildTextField('Senha', _passwordController,
+                        obscureText: true, validator: _validarSenha),
+                    const SizedBox(height: 10),
+                    _buildTextField(
+                      'Confirme sua Senha',
+                      _confirmPasswordController,
+                      obscureText: true,
+                      validator: (value) {
+                        if (value != _passwordController.text) {
+                          return 'As senhas não coincidem.';
+                        }
+                        return null;
+                      },
+                    ),
                     const SizedBox(height: 10),
                     _buildTextField('CEP', _cepController,
                         keyboardType: TextInputType.number,
@@ -255,6 +271,15 @@ class _CadastroScreenState extends State<CadastroScreen> with TickerProviderStat
       return 'Por favor, insira seu email';
     } else if (!value.contains('@')) {
       return 'Por favor, insira um email válido';
+    }
+    return null;
+  }
+
+  String? _validarSenha(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Por favor, insira sua senha';
+    } else if (value.length < 6) {
+      return 'A senha deve ter pelo menos 6 caracteres';
     }
     return null;
   }

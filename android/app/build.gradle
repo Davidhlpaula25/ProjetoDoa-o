@@ -1,13 +1,14 @@
 plugins {
-     id "com.android.application"
+    id "com.android.application"
     id "kotlin-android"
-   
     id "dev.flutter.flutter-gradle-plugin"
 }
 
 android {
     namespace = "com.example.authentication"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 33  // Atualizar para a versão mais recente que você está utilizando, 33 é uma boa escolha.
+
+    // Defina a versão do NDK se for necessária. Se não, pode remover a linha abaixo.
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -16,34 +17,29 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8
+        jvmTarget = "1.8"  // Certifique-se de que o jvmTarget está correto
     }
 
     defaultConfig {
-      
         applicationId = "com.example.authentication"
-      
-        minSdkVersion flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
+        minSdkVersion 23  // Atualizando explicitamente para 23
+        targetSdk 33  // Atualizado para 33
+        versionCode flutter.versionCode
+        versionName flutter.versionName
     }
 
     buildTypes {
         release {
-          
-            signingConfig = signingConfigs.debug
+            signingConfig signingConfigs.debug
         }
     }
 }
 
 flutter {
-    source = "../.."
+    source = "../.."  // Verifique se o caminho para o Flutter SDK está correto.
 }
 
 dependencies {
-  implementation platform('com.google.firebase:firebase-bom:31.0.2')
-  implementation 'com.google.firebase:firebase-auth'     //adicionar
+    implementation platform('com.google.firebase:firebase-bom:31.0.2')  // Incluindo o Firebase BOM
+    implementation 'com.google.firebase:firebase-auth'  // Dependência Firebase Auth
 }
-
-

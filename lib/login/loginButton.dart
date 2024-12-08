@@ -1,4 +1,3 @@
-// ignore: file_names
 
 import 'package:authentication/controllers/loginController.dart';
 import 'package:flutter/material.dart';
